@@ -1,0 +1,29 @@
+#!/usr/bin/env php
+<?php
+/**
+ * Yii console bootstrap file.
+ *
+ * @link http://www.yiiframework.com/
+ * @copyright Copyright (c) 2008 Yii Software LLC
+ * @license http://www.yiiframework.com/license/
+ */
+defined('YII_DEBUG') or define('YII_DEBUG', true);
+defined('YII_ENV') or define('YII_ENV', 'dev');
+
+defined('APP_ROOT') OR define('APP_ROOT', __DIR__);
+
+require(APP_ROOT . '/vendor/autoload.php');
+require(APP_ROOT . '/vendor/yiisoft/yii2/Yii.php');
+
+require(dirname(APP_ROOT) . '/fdn/web/WS.php');
+
+$config = require(APP_ROOT . '/config/main.php');
+
+class App extends \yii\console\Application
+{
+    public $configuationData = [];
+}
+
+$application = new \App($config);
+$exitCode = $application->run();
+exit($exitCode);
