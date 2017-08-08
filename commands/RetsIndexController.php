@@ -269,29 +269,27 @@ class Config {
             ],
             'lot_size'=>[
                 'filter'=>function($val) {
-                    return floatval($val);
+                    return $val;
                 }
             ],
             'latitude'=>[
                 'filter'=>function($val) {
-                    return floatval($val);
+                    return $val;
                 }
             ],
             'longitude'=>[
                 'filter'=>function($val) {
-                    return floatval($val);
+                    return $val;
                 }
             ],
             'latitude_rad'=>[
                 'value'=>function($d) {
-                    $value = floatval($d['latitude']);
-                    return deg2rad($value);
+                    return deg2rad($d['latitude']);
                 }
             ],
             'longitude_rad'=>[
                 'value'=>function($d) {
-                    $value = floatval($d['longitude']);
-                    return deg2rad($value);
+                    return deg2rad($d['longitude']);
                 }
             ],
             'subway_lines'=>[
