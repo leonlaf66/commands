@@ -20,7 +20,7 @@ $worker->onWorkerStart = function($worker)
         $data = json_decode($buffer, true);
         $uid = $data['uid'];
         if ($uid === 'shell') { // 仅执行shell命令
-            shell_exec($data['command'].'>/tmp/usleju.log');
+            shell_exec($data['command'].' > > /dev/null 2>&1 &');
             return;
         }
 
