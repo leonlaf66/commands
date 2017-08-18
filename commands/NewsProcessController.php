@@ -13,7 +13,7 @@ class NewsProcessController extends Controller
 
         // 以下的程序将在后台执行
         $db->createCommand()
-            ->update('news', ['status' => 0], $where)
+            ->update('news', ['status' => 2], $where)
             ->execute();
 
         $content = $db->createCommand('select content from news where '.$where)->queryScalar();
