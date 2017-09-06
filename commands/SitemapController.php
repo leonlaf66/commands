@@ -1,7 +1,7 @@
 <?php
 namespace app\commands;
 
-use samdark\sitemap\Sitemap;
+use libs\Sitemap;
 use samdark\sitemap\SitemapIndex;
 use yii\console\Controller;
 
@@ -21,7 +21,8 @@ class SitemapController extends Controller
             $sitemap = new Sitemap(TRIGET_SITE_ROOT.'/sitemap_houses'.($idx > $idx ? '_'.($idx + 1) : '').'.xml');
             foreach ($rows as $row) {
                 $url = 'http://ma'.$domain.'/'.($row['is_rental'] ? 'lease' : 'purchase').'/'.$row['id'].'/';
-                $sitemap->addItem($url, strtotime($row['index_at']), Sitemap::DAILY, 1);
+                $zhUrl = 'http://ma'.$domain.'/zh/'.($row['is_rental'] ? 'lease' : 'purchase').'/'.$row['id'].'/';
+                $sitemap->addItem([$url, $zhUrl], strtotime($row['index_at']), Sitemap::DAILY, 1);
             }
             $sitemap->write();
         }, 40000);
@@ -31,7 +32,8 @@ class SitemapController extends Controller
         $sitemap = new Sitemap(TRIGET_SITE_ROOT.'/sitemap_yp.xml');
         foreach ($rows as $row) {
             $url = 'http://ma'.$domain.'/pro-service/'.$row['id'].'/';
-            $sitemap->addItem($url, null, Sitemap::MONTHLY, 0.8);
+            $zhUrl = 'http://ma'.$domain.'/zh/pro-service/'.$row['id'].'/';
+            $sitemap->addItem([$url, $zhUrl], null, Sitemap::MONTHLY, 0.8);
         }
         $sitemap->write();
 
