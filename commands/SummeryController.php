@@ -9,34 +9,34 @@ class SummeryController extends Controller
     public function actionIndex()
     {
         $db = WS::$app->db;
-        $rows = [];
-
+        
         $services = [
-            'townDataUpdate' => function ($town, $path, $data) use ($db) {
-                $sql = 'select 1 from schooldistrict_data where town_id=:town and path=:path limit 1';
-                $isExists = $db->createCommand($sql)
-                    ->bindValue(':town', $town)
-                    ->bindValue(':path', $path)
-                    ->queryScalar();
+            // 分学区统计数据
+            'sdDataUpdate' => function ($sdCode, $path, $data) use ($db) {
+                $isExists = (new \yii\db\Query())
+                    ->from('schooldistrict_data')
+                    ->where(['code' => $sdCode, 'path' => $path])
+                    ->exists();
 
                 if ($isExists) {
                     return $db->createCommand()
                         ->update('schooldistrict_data', [
                             'data' => json_encode($data)
-                        ], 'town_id=:town and path=:path')
-                        ->bindValue(':town', $town)
+                        ], 'code=:code and path=:path')
+                        ->bindValue(':code', $sdCode)
                         ->bindValue(':path', $path)
                         ->execute();
                 } else {
                     return $db->createCommand()
                         ->insert('schooldistrict_data', [
-                            'town_id' => $town,
+                            'code' => $sdCode,
                             'path' => $path,
                             'data' => json_encode($data)
                         ])
                         ->execute();
                 }
             },
+            // 图形统计数据
             'writeDCharts' => function ($rows) use ($db) {
                  $db->createCommand()
                     ->delete('data_charts')
@@ -50,25 +50,95 @@ class SummeryController extends Controller
             }
         ];
 
-        $summaries = $this->summaries();
-        foreach ($summaries as $summeryKey => $callable) {
-            if ($data = $callable($this)) {
-                $summaryTypeId = explode('/', $summeryKey)[0];
-                if ($summaryTypeId === 'sd') {
-                    foreach ($data as $townId => $townData) {
-                        ($services['townDataUpdate'])($townId, $summeryKey, $townData);
-                    }
-                } else {
-                    $data = json_encode($data);
-                    $rows[] = ['path' => $summeryKey, 'data' => $data];
+        /*分学区统计*/
+        $sdCodes = $db->createCommand('select code from schooldistrict_items')->queryColumn();
+        $townSummeries = $this->townSummeries();
+        foreach ($sdCodes as $sdCode) {
+            $towns = explode('/', $sdCode);
+            foreach ($townSummeries as $summeryKey => $callable) {
+                if ($value = $callable($towns, $this)) {
+                    ($services['sdDataUpdate'])($sdCode, $summeryKey, $value);
                 }
             }
         }
 
+        /*分区域统计*/
+        $rows = [];
+        $areaSummaries = $this->areaSummaries();
+        foreach ($areaSummaries as $summeryKey => $callable) {
+            if ($data = $callable($this)) {
+                $data = json_encode($data);
+                $rows[] = ['path' => $summeryKey, 'data' => $data];
+            }
+        }
+
+        /*图形统计*/
         ($services['writeDCharts'])($rows);
     }
 
-    public function summaries()
+    public function townSummeries()
+    {
+        return [
+            // 平均房价
+            'average-price' => function ($towns) {
+                return (new \yii\db\Query())
+                    ->select('avg(list_price) as value')
+                    ->from('rets_mls_index')
+                    ->where(['in', 'town', $towns])
+                    ->andWhere(['in', 'prop_type', ['SF','CC','MF']])
+                    ->andWhere(['in', 'status', ['ACT','NEW','BOM','PCG','RAC','EXT']])
+                    ->andWhere(['in', 'town', $towns])
+                    ->scalar();
+            },
+            // 平均月租
+            'avergage-rental-price' => function ($towns) {
+                return (new \yii\db\Query())
+                    ->select('avg(list_price) as value')
+                    ->from('rets_mls_index')
+                    ->where(['in', 'town', $towns])
+                    ->andWhere(['prop_type' => 'RN'])
+                    ->andWhere(['in', 'status', ['ACT','NEW','BOM','PCG','RAC','EXT']])
+                    ->scalar();
+            },
+            // 年成交量
+            'year-down-total' => function ($towns) {
+                return (new \yii\db\Query())
+                    ->select('count(*) as value')
+                    ->from('rets_mls_index')
+                    ->where(['in', 'town', $towns])
+                    ->andWhere(['<>', 'prop_type', 'RN'])
+                    ->andWhere(['status' => 'SLD'])
+                    ->andWhere("ant_sold_date > now() - interval '1 year'")
+                    ->scalar();
+            },
+            // 近三年学区房季度成交量
+            'three-years-charts' => function ($towns) {
+                return null;
+            },
+            // 近五年学区房每季度房价走势
+            'five-years-charts' => function ($towns) {
+                return null;
+            },
+            /*学区房源数量*/
+            'total' => function ($towns) {
+                return (new \yii\db\Query())
+                    ->select('count(*) as value')
+                    ->from('rets_mls_index')
+                    ->where(['in', 'town', $towns])
+                    ->andWhere(['<>', 'prop_type', 'RN'])
+                    ->andWhere(['in', 'status', ['ACT','NEW','BOM','PCG','RAC','EXT']])
+                    ->scalar();
+            },
+
+            /* 房源详情 */
+            // 近三年房价走势
+            'three-years-charts' => function ($towns) {
+                return null;
+            },
+        ];
+    }
+
+    public function areaSummaries()
     {
         return [
             /* Home */
@@ -173,90 +243,7 @@ class SummeryController extends Controller
                     'value'=>$count1,
                     'dir' => $count2 > $count1 ? 'up' : 'down'
                 ];
-            },
-
-            /*学区详情*/
-            // 平均房价
-            'sd/average-price' => function () {
-                $sql = "select town, avg(list_price) as value
-                    from rets_mls_index
-                    where prop_type in ('SF','CC','MF')
-                      and status in ('ACT','NEW','BOM','PCG','RAC','EXT')
-                    group by town";
-                $rows = \WS::$app->db->createCommand($sql)->queryAll();
-
-                return array_key_value($rows, function ($row) {
-                    return [
-                        $row['town'],
-                        number_format($row['value'], 0)
-                    ];
-                });
-            },
-            // 平均月租
-            'sd/avergage-rental-price' => function () {
-                $sql = "select town, avg(list_price) as value
-                    from rets_mls_index
-                    where prop_type='RN'
-                      and status in ('ACT','NEW','BOM','PCG','RAC','EXT')
-                    group by town";
-                $rows = \WS::$app->db->createCommand($sql)->queryAll();
-
-                return array_key_value($rows, function ($row) {
-                    return [
-                        $row['town'],
-                        number_format($row['value'], 0)
-                    ];
-                });
-            },
-            // 年成交量
-            'sd/year-down-total' => function () {
-                $sql = "select town, count(*) as value
-                    from rets_mls_index
-                    where prop_type <> 'RN'
-                      and status='SLD'
-                      and ant_sold_date > now() - interval '1 year'
-                    group by town";
-
-                $rows = \WS::$app->db->createCommand($sql)->queryAll();
-
-                return array_key_value($rows, function ($row) {
-                    return [
-                        $row['town'],
-                        $row['value']
-                    ];
-                });
-            },
-            // 近三年学区房季度成交量
-            'sd/three-years-charts' => function () {
-                return null;
-            },
-            // 近五年学区房每季度房价走势
-            'sd/five-years-charts' => function () {
-                return null;
-            },
-            /*学区其它*/
-            'sd/total' => function () {
-                $sql = "select town, count(*) as count
-                    from rets_mls_index
-                    where prop_type <> 'RN'
-                      and status in ('ACT','NEW','BOM','PCG','RAC','EXT')
-                    group by town";
-
-                $rows = \WS::$app->db->createCommand($sql)->queryAll();
-
-                return array_key_value($rows, function ($row) {
-                    return [
-                        $row['town'],
-                        $row['count']
-                    ];
-                });
-            },
-
-            /* 房源详情 */
-            // 近三年房价走势
-            'sd/three-years-charts' => function () {
-                return null;
-            },
+            }
         ];
     }
 }
