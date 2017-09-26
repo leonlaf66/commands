@@ -60,9 +60,9 @@ class SitemapController extends Controller
             }
         }
         $robotsContent = trim($robotsContent);
-        $robotsContent .= "\r\n";
+        $robotsContent .= "\n";
         foreach($xmlFiles as $xmlFilename) {
-            $robotsContent .= "Sitemap: http://ma{$domain}/{$xmlFilename}\r\n";
+            $robotsContent .= "Sitemap: http://ma{$domain}/{$xmlFilename}\n";
         }
         file_put_contents(TRIGET_SITE_ROOT.'/robots.txt', $robotsContent);
     }
