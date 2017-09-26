@@ -9,5 +9,8 @@ $fdnEtc = get_fdn_etc();
 return \yii\helpers\ArrayHelper::merge(get_fdn_etc(), [
     'id' => 'usleju-console',
     'basePath' => dirname(__DIR__),
-    'controllerNamespace' => 'app\commands'
+    'controllerNamespace' => 'app\commands',
+    'params' => [
+      'frontendBaseUrl' => 'http://ma.usleju.local'
+    ]
 ], include(__DIR__.'/local.php'));
