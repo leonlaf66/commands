@@ -99,9 +99,10 @@ class RetsIndexController extends Controller
 
                 //附加处理
                 if (strtotime($row['update_date']) > strtotime($indexLatestAt)) {
+                    var_dump($row['update_date']);exit;
                     $indexLatestAt = $row['update_date'];
                 }
-                var_dump($indexLatestAt);exit;
+                
                 if (! $hasIndexed) $hasIndexed = true;
 
                 unset($row);
