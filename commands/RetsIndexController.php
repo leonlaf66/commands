@@ -67,8 +67,6 @@ class RetsIndexController extends Controller
         $groupSize = 1000;
 
         $indexLatestAt = Configure::getValue('rets.index.latest_date');
-
-        $indexLatestAt = '2017-09-26';
         $query = (new \yii\db\Query())
             ->select('*')
             ->from('mls_rets')
