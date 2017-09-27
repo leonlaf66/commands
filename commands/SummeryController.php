@@ -76,7 +76,7 @@ class SummeryController extends Controller
         ($services['writeDCharts'])($rows);
 
         /*log*/
-        file_put_contents(__DIR__.'/../log.log', date('Y-m-d H:i:s').' summary', FILE_APPEND);
+        file_put_contents(__DIR__.'/../log.log', date('Y-m-d H:i:s').' summary'."\n", FILE_APPEND);
     }
 
     public function townSummeries()

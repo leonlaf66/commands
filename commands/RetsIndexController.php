@@ -115,7 +115,7 @@ class RetsIndexController extends Controller
         $configure->update(false, ['value']);
 
         //日志
-        file_put_contents(__DIR__.'/../log.log', date('Y-m-d H:i:s').' rets.index', FILE_APPEND);
+        file_put_contents(__DIR__.'/../log.log', date('Y-m-d H:i:s').' rets.index'."\n", FILE_APPEND);
 
         //执行过后相关的命令
         \WS::$app->shellMessage->send('summery/index');
