@@ -12,8 +12,6 @@ class SitemapController extends Controller
 {
     public function actionGenerate()
     {
-        exec('rm '.TRIGET_SITE_ROOT.'/sitemap*.xml');
-
         $domain = \WS::$app->params['domain'];
         $xmlFiles = [];
 
@@ -27,6 +25,8 @@ class SitemapController extends Controller
                 $zhUrl = 'http://ma'.$domain.'/zh/'.($row['is_rental'] ? 'lease' : 'purchase').'/'.$row['id'].'/';
                 $sitemap->addItem([$url, $zhUrl], strtotime($row['index_at']), Sitemap::DAILY, 1);
             }
+
+            exec('rm '.TRIGET_SITE_ROOT.'/sitemap_houses*.xml');
             $sitemap->write();
         }, 40000);
 
@@ -39,6 +39,8 @@ class SitemapController extends Controller
             $zhUrl = 'http://ma'.$domain.'/zh/pro-service/'.$row['id'].'/';
             $sitemap->addItem([$url, $zhUrl], null, Sitemap::MONTHLY, 0.8);
         }
+
+        exec('rm '.TRIGET_SITE_ROOT.'/sitemap_yp.xml');
         $sitemap->write();
 
         // 新闻
@@ -49,6 +51,7 @@ class SitemapController extends Controller
             $url = 'http://ma'.$domain.'/news/'.$row['id'].'/';
             $sitemap->addItem($url, strtotime($row['updated_at']), Sitemap::DAILY, 0.9);
         }
+        exec('rm '.TRIGET_SITE_ROOT.'/sitemap_news.xml');
         $sitemap->write();
 
         // 写入robots文件

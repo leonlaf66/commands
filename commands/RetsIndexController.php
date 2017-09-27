@@ -73,7 +73,8 @@ class RetsIndexController extends Controller
             ->where('update_date >= :update_date or update_date is null', [':update_date' => $indexLatestAt])
             ->limit($groupSize);
 
-        DbQuery::patch($query, $groupSize, function ($query, $totalCount, $that) {
+        $hasIndexed = false;
+        DbQuery::patch($query, $groupSize, function ($query, $totalCount, $that) use (& $indexLatestAt, & $hasIndexed) {
             $mlsdb = WS::$app->mlsdb;
             $transaction = \yii::$app->db->beginTransaction();
 
@@ -103,6 +104,12 @@ class RetsIndexController extends Controller
 
                 unset($row);
                 unset($rets);
+
+                //附加处理
+                if (strtotime($row['update_date']) > strtotime($indexLatestAt)) {
+                    $indexLatestAt = $row['update_date'];
+                }
+                if (! $hasIndexed) $hasIndexed = true;
             }
 
             $transaction->commit();
@@ -111,15 +118,17 @@ class RetsIndexController extends Controller
 
         //执行完过后再执行状态
         $configure = Configure::find()->where(['path'=>'rets.index.latest_date'])->one();
-        $configure->value = date('Y-m-d');
+        $configure->value = $indexLatestAt;
         $configure->update(false, ['value']);
 
         //日志
         file_put_contents(__DIR__.'/../log.log', date('Y-m-d H:i:s').' rets.index'."\n", FILE_APPEND);
 
         //执行过后相关的命令
-        \WS::$app->shellMessage->send('summery/index');
-        \WS::$app->shellMessage->send('sitemap/generate');
+        if ($hasIndexed) {
+            \WS::$app->shellMessage->send('summery/index');
+            \WS::$app->shellMessage->send('sitemap/generate');
+        }
     }
 
     protected function _processRow($rets)
