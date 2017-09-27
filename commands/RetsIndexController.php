@@ -70,7 +70,7 @@ class RetsIndexController extends Controller
         $query = (new \yii\db\Query())
             ->select('*')
             ->from('mls_rets')
-            ->where('update_date >= :update_date or update_date is null', [':update_date' => $indexLatestAt])
+            ->where('update_date > :update_date', [':update_date' => $indexLatestAt])
             ->limit($groupSize);
 
         $hasIndexed = false;
