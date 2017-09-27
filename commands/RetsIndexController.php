@@ -120,7 +120,7 @@ class RetsIndexController extends Controller
         }, $this, $mlsdb);
 
         //执行完过后再执行状态
-        \yii::$app->db->createCommand()->update('core_config_data', ['value' => $indexLatestAt], 'path="rets.index.latest_date"')->execute();
+        \yii::$app->db->createCommand()->update('core_config_data', ['value' => $indexLatestAt], "path='rets.index.latest_date'")->execute();
 
         //日志
         file_put_contents(__DIR__.'/../log.log', date('Y-m-d H:i:s').' rets.index'."\n", FILE_APPEND);
