@@ -68,6 +68,7 @@ class RetsIndexController extends Controller
 
         $indexLatestAt = Configure::getValue('rets.index.latest_date');
 
+        $indexLatestAt = '2017-09-26';
         $query = (new \yii\db\Query())
             ->select('*')
             ->from('mls_rets')
@@ -114,6 +115,10 @@ class RetsIndexController extends Controller
         $configure = Configure::find()->where(['path'=>'rets.index.latest_date'])->one();
         $configure->value = date('Y-m-d');
         $configure->update(false, ['value']);
+
+        // 执行过后相关的命令
+        \WS::$app->shellMessage->send('summery/index');
+        \WS::$app->shellMessage->send('sitemap/generate');
     }
 
     protected function _processRow($rets)
