@@ -80,7 +80,7 @@ class RetsIndexController extends Controller
 
             $rows = $query->orderBy('list_no', 'ASC')->all($mlsdb);
             foreach($rows as $row) {
-                $updateDateAt = $row['update_date'];
+                $updateDateAt = $row['update_date']; // 解决莫名其妙的时间会变化的问题
 
                 //合并json数据到主体
                 if ($row['json_data']) {
@@ -101,8 +101,7 @@ class RetsIndexController extends Controller
 
                 //附加处理
                 if (strtotime($updateDateAt) > strtotime($indexLatestAt)) {
-                    var_dump($updateDateAt);exit;
-                    $indexLatestAt = $row['update_date'];
+                    $indexLatestAt = $updateDateAt;
                 }
 
                 if (! $hasIndexed) $hasIndexed = true;
