@@ -97,19 +97,19 @@ class RetsIndexController extends Controller
                     Counter::_('error')->increase();
                 }
 
-                //屏幕输出
-                $index = Counter::_('index')->value;
-                $error = Counter::_('error')->value;
-                echo "indexed:{$index}/error:{$error}/total:{$totalCount}                   \r";
-
-                unset($row);
-                unset($rets);
-
                 //附加处理
                 if (strtotime($row['update_date']) > strtotime($indexLatestAt)) {
                     $indexLatestAt = $row['update_date'];
                 }
                 if (! $hasIndexed) $hasIndexed = true;
+
+                unset($row);
+                unset($rets);
+
+                //屏幕输出
+                $index = Counter::_('index')->value;
+                $error = Counter::_('error')->value;
+                echo "indexed:{$index}/error:{$error}/total:{$totalCount}                   \r";
             }
 
             $transaction->commit();
