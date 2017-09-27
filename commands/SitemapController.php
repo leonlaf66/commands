@@ -67,6 +67,6 @@ class SitemapController extends Controller
         file_put_contents(TRIGET_SITE_ROOT.'/robots.txt', $robotsContent);
 
         /*log*/
-        file_put_contents(__DIR__.'/../log.log', date('Y-m-d H:i:s').' sitemap xml'.."\n", FILE_APPEND);
+        file_put_contents(__DIR__.'/../log.log', date('Y-m-d H:i:s').' sitemap xml'."\n", FILE_APPEND);
     }
 }
