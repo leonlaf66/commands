@@ -116,7 +116,10 @@ class RetsIndexController extends Controller
         $configure->value = date('Y-m-d');
         $configure->update(false, ['value']);
 
-        // 执行过后相关的命令
+        //日志
+        file_put_contents(__DIR__.'/../log.log', date('Y-m-d H:i:s').' rets.index', FILE_APPEND);
+
+        //执行过后相关的命令
         \WS::$app->shellMessage->send('summery/index');
         \WS::$app->shellMessage->send('sitemap/generate');
     }

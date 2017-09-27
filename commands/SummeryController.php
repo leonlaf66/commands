@@ -74,6 +74,9 @@ class SummeryController extends Controller
 
         /*图形统计*/
         ($services['writeDCharts'])($rows);
+
+        /*log*/
+        file_put_contents(__DIR__.'/../log.log', date('Y-m-d H:i:s').' summary', FILE_APPEND);
     }
 
     public function townSummeries()

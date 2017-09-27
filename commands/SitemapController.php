@@ -65,5 +65,8 @@ class SitemapController extends Controller
             $robotsContent .= "Sitemap: http://ma{$domain}/{$xmlFilename}\n";
         }
         file_put_contents(TRIGET_SITE_ROOT.'/robots.txt', $robotsContent);
+
+        /*log*/
+        file_put_contents(__DIR__.'/../log.log', date('Y-m-d H:i:s').' sitemap xml', FILE_APPEND);
     }
 }
