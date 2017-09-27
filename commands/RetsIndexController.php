@@ -80,6 +80,7 @@ class RetsIndexController extends Controller
 
             $rows = $query->orderBy('list_no', 'ASC')->all($mlsdb);
             foreach($rows as $row) {
+                var_dump($row['update_date']);exit;
                 //合并json数据到主体
                 if ($row['json_data']) {
                     $row = array_merge($row, (array)json_decode($row['json_data']));
