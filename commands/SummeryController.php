@@ -14,13 +14,13 @@ class SummeryController extends Controller
             // 分学区统计数据
             'sdDataUpdate' => function ($sdCode, $path, $data) use ($db) {
                 $isExists = (new \yii\db\Query())
-                    ->from('schooldistrict_data')
+                    ->from('schooldistrict_setting')
                     ->where(['code' => $sdCode, 'path' => $path])
                     ->exists();
 
                 if ($isExists) {
                     return $db->createCommand()
-                        ->update('schooldistrict_data', [
+                        ->update('schooldistrict_setting', [
                             'data' => json_encode($data)
                         ], 'code=:code and path=:path')
                         ->bindValue(':code', $sdCode)
@@ -28,7 +28,7 @@ class SummeryController extends Controller
                         ->execute();
                 } else {
                     return $db->createCommand()
-                        ->insert('schooldistrict_data', [
+                        ->insert('schooldistrict_setting', [
                             'code' => $sdCode,
                             'path' => $path,
                             'data' => json_encode($data)
@@ -51,7 +51,7 @@ class SummeryController extends Controller
         ];
 
         /*分学区统计*/
-        $sdCodes = $db->createCommand('select code from schooldistrict_items')->queryColumn();
+        $sdCodes = $db->createCommand('select code from schooldistrict')->queryColumn();
         $townSummeries = $this->townSummeries();
         foreach ($sdCodes as $sdCode) {
             $towns = explode('/', $sdCode);
@@ -86,7 +86,7 @@ class SummeryController extends Controller
             'average-price' => function ($towns) {
                 return (new \yii\db\Query())
                     ->select('avg(list_price) as value')
-                    ->from('rets_mls_index')
+                    ->from('house_index')
                     ->where(['in', 'town', $towns])
                     ->andWhere(['in', 'prop_type', ['SF','CC','MF']])
                     ->andWhere(['in', 'status', ['ACT','NEW','BOM','PCG','RAC','EXT']])
@@ -97,7 +97,7 @@ class SummeryController extends Controller
             'avergage-rental-price' => function ($towns) {
                 return (new \yii\db\Query())
                     ->select('avg(list_price) as value')
-                    ->from('rets_mls_index')
+                    ->from('house_index')
                     ->where(['in', 'town', $towns])
                     ->andWhere(['prop_type' => 'RN'])
                     ->andWhere(['in', 'status', ['ACT','NEW','BOM','PCG','RAC','EXT']])
@@ -107,7 +107,7 @@ class SummeryController extends Controller
             'year-down-total' => function ($towns) {
                 return (new \yii\db\Query())
                     ->select('count(*) as value')
-                    ->from('rets_mls_index')
+                    ->from('house_index')
                     ->where(['in', 'town', $towns])
                     ->andWhere(['<>', 'prop_type', 'RN'])
                     ->andWhere(['status' => 'SLD'])
@@ -126,7 +126,7 @@ class SummeryController extends Controller
             'total' => function ($towns) {
                 return (new \yii\db\Query())
                     ->select('count(*) as value')
-                    ->from('rets_mls_index')
+                    ->from('house_index')
                     ->where(['in', 'town', $towns])
                     ->andWhere(['<>', 'prop_type', 'RN'])
                     ->andWhere(['in', 'status', ['ACT','NEW','BOM','PCG','RAC','EXT']])
@@ -149,7 +149,7 @@ class SummeryController extends Controller
             'marketing/average-housing-price' => function () {
                 // 当前平均价格
                 $sql = "select avg(list_price)
-                    from rets_mls_index
+                    from house_index
                     where prop_type in ('SF','CC','MF')
                       and status in ('ACT','NEW','BOM','PCG','RAC','EXT')";
 
@@ -157,7 +157,7 @@ class SummeryController extends Controller
 
                 // 上月已售出平均价格
                 $sql = "select avg(sale_price)
-                    from rets_mls_index
+                    from house_index
                     where prop_type in ('SF','CC','MF')
                       and status='SLD'
                       and ant_sold_date > now() - interval '1 month'";
@@ -172,7 +172,7 @@ class SummeryController extends Controller
             'marketing/month-on-month-change' => function () {
                 // 2个月前
                 $sql = "select avg(sale_price)
-                    from rets_mls_index
+                    from house_index
                     where prop_type <> 'RN'
                       and status='SLD'
                       and ant_sold_date > now() - interval '2 month'
@@ -181,7 +181,7 @@ class SummeryController extends Controller
 
                 // 1个月前
                 $sql = "select avg(sale_price)
-                    from rets_mls_index
+                    from house_index
                     where prop_type <> 'RN'
                       and status='SLD'
                       and ant_sold_date > now() - interval '1 month'";
@@ -203,7 +203,7 @@ class SummeryController extends Controller
             'marketing/prop-transactions-of-last-month' => function () {
                 // 2个月前
                 $sql = "select count(*) as total
-                    from rets_mls_index
+                    from house_index
                     where prop_type <> 'RN'
                       and status='SLD'
                       and ant_sold_date > now() - interval '2 month'
@@ -212,7 +212,7 @@ class SummeryController extends Controller
 
                 // 1个月前
                 $sql = "select count(*) as total
-                    from rets_mls_index
+                    from house_index
                     where prop_type <> 'RN'
                       and status='SLD'
                       and ant_sold_date > now() - interval '1 month'";
@@ -227,7 +227,7 @@ class SummeryController extends Controller
             'marketing/new-listings-of-this-month' => function () {
                 // 当前平均价格
                 $sql = "select count(*) as count
-                    from rets_mls_index
+                    from house_index
                     where prop_type in ('SF','CC','MF')
                       and status in ('ACT','NEW','BOM','PCG','RAC','EXT')
                       and list_date > now() - interval '1 month'";
@@ -236,7 +236,7 @@ class SummeryController extends Controller
 
                 // 上月已售出平均价格
                 $sql = "select count(*) as count
-                    from rets_mls_index
+                    from house_index
                     where prop_type in ('SF','CC','MF')
                       and status='SLD'
                       and ant_sold_date > now() - interval '1 month'";

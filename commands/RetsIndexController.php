@@ -43,7 +43,7 @@ class RetsIndexController extends Controller
                     }
 
                     $rowCount = \yii::$app->db->createCommand()
-                        ->update('rets_mls_index', $rowData, 'id=:id', [':id'=>$row['list_no']])
+                        ->update('house_index', $rowData, 'id=:id', [':id'=>$row['list_no']])
                         ->execute();
 
                     Counter::_($rowCount > 0 ? 'index' : 'error')->increase();
@@ -120,7 +120,7 @@ class RetsIndexController extends Controller
         }, $this, $mlsdb);
 
         //执行完过后再执行状态
-        \yii::$app->db->createCommand()->update('core_config_data', ['value' => $indexLatestAt], "path='rets.index.latest_date'")->execute();
+        \yii::$app->db->createCommand()->update('site_setting', ['value' => $indexLatestAt], "path='rets.index.latest_date'")->execute();
 
         //日志
         file_put_contents(__DIR__.'/../log.log', date('Y-m-d H:i:s').' rets.index'."\n", FILE_APPEND);
@@ -162,14 +162,14 @@ class RetsIndexController extends Controller
         $db = \yii::$app->db;
         $id = $data['id'];
 
-        if ((new Query())->from('rets_mls_index')->where(['id'=>$id])->exists()) {
+        if ((new Query())->from('house_index')->where(['id'=>$id])->exists()) {
             return $db->createCommand()
-                ->update('rets_mls_index', $data, 'id=:id', [':id'=>$id])
+                ->update('house_index', $data, 'id=:id', [':id'=>$id])
                 ->execute();
         }
 
         return $db->createCommand()
-            ->insert('rets_mls_index', $data)
+            ->insert('house_index', $data)
             ->execute();
     }
 
