@@ -62,7 +62,8 @@
         ],
         "psr-4": {
             "common\\": "./../fdn",
-            "libs\\": "./libs"
+            "libs\\": "./libs",
+            "models\\": "./../fdn/_models"
         }
     }
 }
