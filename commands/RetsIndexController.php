@@ -6,7 +6,7 @@ use yii\console\Controller;
 use yii\db\Query;
 use common\helper\DbQuery;
 
-use common\core\Configure;
+use models\SiteSetting as Configure;
 
 defined('APP_ROOT') || define('APP_ROOT', dirname(__FILE__).'/../');
 
