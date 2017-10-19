@@ -329,6 +329,11 @@ class Config {
                 'value'=>function($d) {
                     return in_array($d['status'], ['ACT','NEW','BOM','PCG','RAC','EXT']);
                 }
+            ],
+            'state' => [
+                'value' => function($d) {
+                    return $d['state'];
+                }
             ]
         ];
     }
