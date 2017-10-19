@@ -39,12 +39,12 @@ class SummeryController extends Controller
             // 图形统计数据
             'writeDCharts' => function ($rows) use ($db) {
                  $db->createCommand()
-                    ->delete('data_charts')
+                    ->delete('site_chart_setting')
                     ->execute();
 
                 foreach ($rows as $row) {
                     $db->createCommand()
-                        ->insert('data_charts', $row)
+                        ->insert('site_chart_setting', $row)
                         ->execute();
                 }
             }

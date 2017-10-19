@@ -22,6 +22,7 @@ $config = require(APP_ROOT . '/config/main.php');
 class App extends \yii\console\Application
 {
     public $configuationData = [];
+    public $areaMaps = [];
 }
 
 $application = new \App($config);
