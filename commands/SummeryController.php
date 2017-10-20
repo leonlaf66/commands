@@ -87,7 +87,8 @@ class SummeryController extends Controller
                 return (new \yii\db\Query())
                     ->select('avg(list_price) as value')
                     ->from('house_index')
-                    ->where(['in', 'town', $towns])
+                    ->where(['state' => 'MA'])
+                    ->andWhere(['in', 'town', $towns])
                     ->andWhere(['in', 'prop_type', ['SF','CC','MF']])
                     ->andWhere(['in', 'status', ['ACT','NEW','BOM','PCG','RAC','EXT']])
                     ->andWhere(['in', 'town', $towns])
@@ -98,7 +99,8 @@ class SummeryController extends Controller
                 return (new \yii\db\Query())
                     ->select('avg(list_price) as value')
                     ->from('house_index')
-                    ->where(['in', 'town', $towns])
+                    ->where(['state' => 'MA'])
+                    ->andWhere(['in', 'town', $towns])
                     ->andWhere(['prop_type' => 'RN'])
                     ->andWhere(['in', 'status', ['ACT','NEW','BOM','PCG','RAC','EXT']])
                     ->scalar();
@@ -108,7 +110,8 @@ class SummeryController extends Controller
                 return (new \yii\db\Query())
                     ->select('count(*) as value')
                     ->from('house_index')
-                    ->where(['in', 'town', $towns])
+                    ->where('state' => 'MA')
+                    ->andWhere(['in', 'town', $towns])
                     ->andWhere(['<>', 'prop_type', 'RN'])
                     ->andWhere(['status' => 'SLD'])
                     ->andWhere("ant_sold_date > now() - interval '1 year'")
@@ -127,7 +130,8 @@ class SummeryController extends Controller
                 return (new \yii\db\Query())
                     ->select('count(*) as value')
                     ->from('house_index')
-                    ->where(['in', 'town', $towns])
+                    ->where(['state' => 'MA'])
+                    ->andWhere(['in', 'town', $towns])
                     ->andWhere(['<>', 'prop_type', 'RN'])
                     ->andWhere(['in', 'status', ['ACT','NEW','BOM','PCG','RAC','EXT']])
                     ->scalar();
@@ -150,7 +154,8 @@ class SummeryController extends Controller
                 // 当前平均价格
                 $sql = "select avg(list_price)
                     from house_index
-                    where prop_type in ('SF','CC','MF')
+                    where state = 'MA'
+                      and prop_type in ('SF','CC','MF')
                       and status in ('ACT','NEW','BOM','PCG','RAC','EXT')";
 
                 $avgPrice = \WS::$app->db->createCommand($sql)->queryScalar();
@@ -158,7 +163,8 @@ class SummeryController extends Controller
                 // 上月已售出平均价格
                 $sql = "select avg(sale_price)
                     from house_index
-                    where prop_type in ('SF','CC','MF')
+                    where state = 'MA'
+                      and prop_type in ('SF','CC','MF')
                       and status='SLD'
                       and ant_sold_date > now() - interval '1 month'";
                 $priorPirce = \WS::$app->db->createCommand($sql)->queryScalar();
@@ -173,7 +179,8 @@ class SummeryController extends Controller
                 // 2个月前
                 $sql = "select avg(sale_price)
                     from house_index
-                    where prop_type <> 'RN'
+                    where state = 'MA'
+                      and prop_type <> 'RN'
                       and status='SLD'
                       and ant_sold_date > now() - interval '2 month'
                       and ant_sold_date < now() - interval '1 month'";
@@ -182,7 +189,8 @@ class SummeryController extends Controller
                 // 1个月前
                 $sql = "select avg(sale_price)
                     from house_index
-                    where prop_type <> 'RN'
+                    where state = 'MA'
+                      and prop_type <> 'RN'
                       and status='SLD'
                       and ant_sold_date > now() - interval '1 month'";
                 $avgPrice2 = \WS::$app->db->createCommand($sql)->queryScalar();
@@ -204,7 +212,8 @@ class SummeryController extends Controller
                 // 2个月前
                 $sql = "select count(*) as total
                     from house_index
-                    where prop_type <> 'RN'
+                    where state = 'MA'
+                      and prop_type <> 'RN'
                       and status='SLD'
                       and ant_sold_date > now() - interval '2 month'
                       and ant_sold_date < now() - interval '1 month'";
@@ -213,7 +222,8 @@ class SummeryController extends Controller
                 // 1个月前
                 $sql = "select count(*) as total
                     from house_index
-                    where prop_type <> 'RN'
+                    where state = 'MA'
+                      and prop_type <> 'RN'
                       and status='SLD'
                       and ant_sold_date > now() - interval '1 month'";
                 $total2 = \WS::$app->db->createCommand($sql)->queryScalar();
@@ -228,7 +238,8 @@ class SummeryController extends Controller
                 // 当前平均价格
                 $sql = "select count(*) as count
                     from house_index
-                    where prop_type in ('SF','CC','MF')
+                    where state = 'MA'
+                      and prop_type in ('SF','CC','MF')
                       and status in ('ACT','NEW','BOM','PCG','RAC','EXT')
                       and list_date > now() - interval '1 month'";
 
@@ -237,7 +248,8 @@ class SummeryController extends Controller
                 // 上月已售出平均价格
                 $sql = "select count(*) as count
                     from house_index
-                    where prop_type in ('SF','CC','MF')
+                    where state = 'MA'
+                      and prop_type in ('SF','CC','MF')
                       and status='SLD'
                       and ant_sold_date > now() - interval '1 month'";
                 $count2 = \WS::$app->db->createCommand($sql)->queryScalar();

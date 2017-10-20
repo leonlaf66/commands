@@ -80,6 +80,8 @@ class RetsIndexController extends Controller
 
             $rows = $query->orderBy('list_no', 'ASC')->all($mlsdb);
             foreach($rows as $row) {
+                if ($row['state'] === 'MA') continue; // 非MA数据暂不允许进来
+
                 $updateDateAt = $row['update_date']; // 解决莫名其妙的时间会变化的问题
 
                 //合并json数据到主体
