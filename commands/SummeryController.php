@@ -110,7 +110,7 @@ class SummeryController extends Controller
                 return (new \yii\db\Query())
                     ->select('count(*) as value')
                     ->from('house_index')
-                    ->where('state' => 'MA')
+                    ->where(['state' => 'MA'])
                     ->andWhere(['in', 'town', $towns])
                     ->andWhere(['<>', 'prop_type', 'RN'])
                     ->andWhere(['status' => 'SLD'])
