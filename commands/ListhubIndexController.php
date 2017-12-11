@@ -16,11 +16,12 @@ class ListhubIndexController extends Controller
     {
         $groupSize = 500;
 
-        //$indexLatestAt = Configure::getValue('listhub.rets.index.latest_date');
+        $indexLatestAt = Configure::getValue('listhub.rets.index.latest_date');
+
         $query = (new \yii\db\Query())
             ->select('list_no, state, xml, latitude, longitude')
             ->from('mls_rets_listhub')
-            //->where('update_date > :update_date', [':last_update_date' => $indexLatestAt])
+            ->where('update_date > :update_date', [':last_update_date' => $indexLatestAt])
             ->limit($groupSize);
 
         $hasIndexed = false;
