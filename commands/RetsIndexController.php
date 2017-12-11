@@ -5,6 +5,7 @@ use WS;
 use yii\console\Controller;
 use yii\db\Query;
 use common\helper\DbQuery;
+use yii\helpers\Console;
 
 use models\SiteSetting as Configure;
 
@@ -66,11 +67,12 @@ class RetsIndexController extends Controller
         $mlsdb = WS::$app->mlsdb;
         $groupSize = 1000;
 
-        $indexLatestAt = Configure::getValue('rets.index.latest_date');
+        $indexLatestAt = Configure::getValue('mls.rets.index.latest_date', 'ma');
+
         $query = (new \yii\db\Query())
             ->select('*')
             ->from('mls_rets')
-            ->where('update_date > :update_date', [':update_date' => $indexLatestAt])
+            //->where('update_date > :update_date', [':update_date' => $indexLatestAt])
             ->limit($groupSize);
 
         $hasIndexed = false;
@@ -80,8 +82,6 @@ class RetsIndexController extends Controller
 
             $rows = $query->orderBy('list_no', 'ASC')->all($mlsdb);
             foreach($rows as $row) {
-                if ($row['state'] === 'MA') continue; // 非MA数据暂不允许进来
-
                 $updateDateAt = $row['update_date']; // 解决莫名其妙的时间会变化的问题
 
                 //合并json数据到主体
@@ -129,8 +129,8 @@ class RetsIndexController extends Controller
 
         //执行过后相关的命令
         if ($hasIndexed) {
-            \WS::$app->shellMessage->send('summery/index');
-            \WS::$app->shellMessage->send('sitemap/generate');
+           \WS::$app->shellMessage->send('summery/index');
+           \WS::$app->shellMessage->send('sitemap/generate');
         }
     }
 
@@ -334,7 +334,7 @@ class Config {
             ],
             'state' => [
                 'value' => function($d) {
-                    return $d['state'];
+                    return strtoupper($d['area_id']);
                 }
             ]
         ];

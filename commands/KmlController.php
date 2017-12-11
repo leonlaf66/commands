@@ -2,15 +2,15 @@
 namespace app\commands;
 
 use yii\console\Controller;
-
+// http://maps.google.com/maps/api/geocode/json?components=country:US|postal_code:01583&sensor=false
 defined('APP_ROOT') || define('APP_ROOT', dirname(__FILE__).'/../');
 
 class KmlController extends Controller
 {
     public function actionToPhpArray()
     {
-        $file = '/usr/local/projects/3ds/wesnail/frontend/apps/frontend/app/estate/etc/map.kml.xml';
-        $toDir = '/usr/local/projects/3ds/wesnail/frontend/apps/frontend/app/estate/etc/map.city.polygon';
+        $file = '/Develops/branches/usleju/fdn/data/kmls/NY/cb_2016_36_place_500k.kml';
+        $toDir = '/Develops/branches/usleju/fdn/data/polygons/NY';
 
         ini_set('memory_limit', '1024M');
 
@@ -23,12 +23,16 @@ class KmlController extends Controller
         $xml->registerXPathNamespace("atom", "http://www.w3.org/2005/Atom");
 
         $placemarkItems = $xml->xpath('Document/Folder/Placemark');
+
         foreach($placemarkItems as $placemarkItem) {
             $cityName = (string)$placemarkItem->name;
             if(strpos($cityName, ' ')!==false) {
                 $cityName = str_replace(' ', '-', $cityName);
             }
             $cityName = strtolower($cityName);
+            foreach (['<at><openparen>', '<closeparen>'] as $str) {
+                $cityName = str_replace($str, '', $cityName);
+            }
             $cityPolygons = [];
             
             if(! empty($placemarkItem->xpath('MultiGeometry'))) {

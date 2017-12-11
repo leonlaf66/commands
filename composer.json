@@ -18,7 +18,8 @@
         "yiisoft/yii2": "~2.0.5",
         "yiisoft/yii2-swiftmailer": "~2.0.0",
         "workerman/workerman": "^3.4",
-        "samdark/sitemap": "^2.0"
+        "samdark/sitemap": "^2.0",
+        "jaeger/querylist": "^4.0"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.0.0",
