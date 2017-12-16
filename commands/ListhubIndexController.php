@@ -88,7 +88,7 @@ class ListhubIndexController extends Controller
         }, $this, $mlsdb);
 
         //执行完过后再执行状态
-        \yii::$app->db->createCommand()->update('site_setting', ['value' => $indexLatestAt], "path='listhub.rets.index.latest_date'")->execute();
+        \yii::$app->db->createCommand()->update('site_setting', ['value' => json_encode($indexLatestAt)], "path='listhub.rets.index.latest_date'")->execute();
     }
 
     protected function _processRow($xmlDom, $row)
