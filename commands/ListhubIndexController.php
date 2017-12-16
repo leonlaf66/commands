@@ -16,12 +16,12 @@ class ListhubIndexController extends Controller
     {
         $groupSize = 500;
 
-        $indexLatestAt = Configure::getValue('listhub.rets.index.latest_date');
+        $indexLatestAt = Configure::get('listhub.rets.index.latest_date');
 
         $query = (new \yii\db\Query())
             ->select('list_no, state, xml, latitude, longitude')
             ->from('mls_rets_listhub')
-            ->where('update_date > :update_date', [':last_update_date' => $indexLatestAt])
+            ->where('last_update_date > :last_update_date', [':last_update_date' => $indexLatestAt])
             ->limit($groupSize);
 
         $hasIndexed = false;
@@ -201,22 +201,6 @@ class ListHubConfig {
                 }
 
                 return $cityId;
-                /*
-                if (!$cityId) {
-                    $zipcode = $d->one('Address/PostalCode')->val();
-                    if (!empty($zipcode)) {
-                        $cityId = (new \yii\db\Query())
-                            ->from('city')
-                            ->select('id')
-                            ->where(['state' => $row['state']])
-                            ->andWhere(['@>', 'zip_codes', '{'.$zipcode.'}'])
-                            ->orderBy(['type_rule' => SORT_ASC, 'id' => SORT_ASC])
-                            ->limit(1)
-                            ->scalar();
-                    }
-                }*/
-
-                // return $cityId;
             },
             'state' => function ($d, $row) {
                 return $row['state'];
