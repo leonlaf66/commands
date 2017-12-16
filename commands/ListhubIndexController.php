@@ -35,7 +35,7 @@ class ListhubIndexController extends Controller
 
             foreach($rows as $row) {
                 //未知state直接扔掉
-                if (!$row['state']) contiue;
+                if (!$row['state']) continue;
 
                 //解析数据实体
                 $xmlDom = \models\listhub\Rets::toModel($row['xml']);
