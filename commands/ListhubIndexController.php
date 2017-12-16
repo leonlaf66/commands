@@ -27,7 +27,7 @@ class ListhubIndexController extends Controller
 
         $mlsdb = WS::$app->mlsdb;
 
-        $processEcho = function () {
+        $processEcho = function ($totalCount) {
             //屏幕输出
             $index = ListhubCounter::_('index')->value;
             $emptyCity = ListhubCounter::_('empty.city')->value;
@@ -51,7 +51,7 @@ class ListhubIndexController extends Controller
                 $cityName = $xmlDom->one('Address/City')->val();
                 if (empty($cityName)) {
                     ListhubCounter::_('empty.city')->increase();
-                    $processEcho();
+                    $processEcho($totalCount));
                     continue;
                 }
 
@@ -59,7 +59,7 @@ class ListhubIndexController extends Controller
                 if ($rowData = $that->_processRow($xmlDom, $row)) {
                     if ($rowData['prop_type'] === false) { // 未知类型，直接扔掉
                         ListhubCounter::_('invalid.prop-type')->increase();
-                        $processEcho();
+                        $processEcho($totalCount));
                         continue;
                     }
 
@@ -79,7 +79,7 @@ class ListhubIndexController extends Controller
                 unset($row);
                 unset($xmlDom);
 
-                $processEcho();
+                $processEcho($totalCount));
             }
 
             $transaction->commit();
