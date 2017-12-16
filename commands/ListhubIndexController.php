@@ -25,10 +25,9 @@ class ListhubIndexController extends Controller
             //->where('last_update_date > :last_update_date', [':last_update_date' => $indexLatestAt])
             ->limit($groupSize);
 
-        $hasIndexed = false;
         $mlsdb = WS::$app->mlsdb;
 
-        DbQuery::patch($query, $groupSize, function ($query, $totalCount, $that) use (& $indexLatestAt, & $hasIndexed) {
+        DbQuery::patch($query, $groupSize, function ($query, $totalCount, $that) use (& $indexLatestAt) {
             $mlsdb = WS::$app->mlsdb;
             $transaction = \yii::$app->db->beginTransaction();
 
@@ -62,8 +61,6 @@ class ListhubIndexController extends Controller
                 //if (strtotime($row['last_update_date']) > strtotime($indexLatestAt)) {
                 //    $indexLatestAt = $row['last_update_date'];
                 //}
-
-                if (! $hasIndexed) $hasIndexed = true;
 
                 unset($row);
                 unset($xmlDom);
