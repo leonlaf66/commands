@@ -27,7 +27,17 @@ class ListhubIndexController extends Controller
 
         $mlsdb = WS::$app->mlsdb;
 
-        DbQuery::patch($query, $groupSize, function ($query, $totalCount, $that) use (& $indexLatestAt) {
+        $processEcho = function () {
+            //屏幕输出
+            $index = ListhubCounter::_('index')->value;
+            $emptyCity = ListhubCounter::_('empty.city')->value;
+            $invalidPropType = ListhubCounter::_('invalid.prop-type')->value;
+            $error = ListhubCounter::_('error')->value;
+
+            echo "indexed:{$index}/empty-city:{$emptyCity}/invalidPropType:{$invalidPropType}/error:{$error}/total:{$totalCount}                   \r";
+        };
+
+        DbQuery::patch($query, $groupSize, function ($query, $totalCount, $that) use (& $indexLatestAt, $processEcho) {
             $mlsdb = WS::$app->mlsdb;
             $transaction = \yii::$app->db->beginTransaction();
 
@@ -40,12 +50,16 @@ class ListhubIndexController extends Controller
                 // 未知city时直接扔掉
                 $cityName = $xmlDom->one('Address/City')->val();
                 if (empty($cityName)) {
+                    ListhubCounter::_('empty.city')->increase();
+                    $processEcho();
                     continue;
                 }
 
                 //处理索引行数据
                 if ($rowData = $that->_processRow($xmlDom, $row)) {
                     if ($rowData['prop_type'] === false) { // 未知类型，直接扔掉
+                        ListhubCounter::_('invalid.prop-type')->increase();
+                        $processEcho();
                         continue;
                     }
 
@@ -65,11 +79,7 @@ class ListhubIndexController extends Controller
                 unset($row);
                 unset($xmlDom);
 
-                //屏幕输出
-                $index = ListhubCounter::_('index')->value;
-                $error = ListhubCounter::_('error')->value;
-
-                echo "indexed:{$index}/error:{$error}/total:{$totalCount}                   \r";
+                $processEcho();
             }
 
             $transaction->commit();
