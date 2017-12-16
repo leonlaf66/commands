@@ -51,7 +51,7 @@ class ListhubIndexController extends Controller
                 $cityName = $xmlDom->one('Address/City')->val();
                 if (empty($cityName)) {
                     ListhubCounter::_('empty.city')->increase();
-                    $processEcho($totalCount));
+                    $processEcho($totalCount);
                     continue;
                 }
 
@@ -59,7 +59,7 @@ class ListhubIndexController extends Controller
                 if ($rowData = $that->_processRow($xmlDom, $row)) {
                     if ($rowData['prop_type'] === false) { // 未知类型，直接扔掉
                         ListhubCounter::_('invalid.prop-type')->increase();
-                        $processEcho($totalCount));
+                        $processEcho($totalCount);
                         continue;
                     }
 
@@ -79,7 +79,7 @@ class ListhubIndexController extends Controller
                 unset($row);
                 unset($xmlDom);
 
-                $processEcho($totalCount));
+                $processEcho($totalCount);
             }
 
             $transaction->commit();
