@@ -37,20 +37,14 @@ class ListhubIndexController extends Controller
                 //未知state直接扔掉
                 if (!$row['state']) continue;
 
-                //解析数据实体
-                $xmlDom = \models\listhub\Rets::toModel($row['xml']);
-
-                // 未知zipcode或者未知city时直接扔掉
-                // $zipcode = $xmlDom->one('Address/PostalCode')->val();
+                // 未知city时直接扔掉
                 $cityName = $xmlDom->one('Address/City')->val();
                 if (empty($cityName)) {
                     continue;
                 }
 
-                //if (empty($zipcode) && empty($cityName)) {
-                //if (empty($cityName)) {
-                //    continue;
-                //}
+                //解析数据实体
+                $xmlDom = \models\listhub\Rets::toModel($row['xml']);
 
                 //处理索引行数据
                 if ($rowData = $that->_processRow($xmlDom, $row)) {
@@ -190,12 +184,13 @@ class ListHubConfig {
                 return $d->one('Address/PostalCode')->val();
             },
             'city_name' => function ($d) {
-                return $d->one('Address/City')->val();
+                return ucwords($d->one('Address/City')->val());
             },
             'city_id' => function ($d, $row) {
                 $cityId = null;
 
                 $cityName = $d->one('Address/City')->val();
+                $cityName = ucwords($cityName);
                 if (!empty($cityName)) {
                     $cityId = (new \yii\db\Query())
                         ->from('city')
