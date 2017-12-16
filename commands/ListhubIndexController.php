@@ -21,7 +21,8 @@ class ListhubIndexController extends Controller
         $query = (new \yii\db\Query())
             ->select('list_no, state, xml, latitude, longitude,last_update_date')
             ->from('mls_rets_listhub')
-            ->where('last_update_date > :last_update_date', [':last_update_date' => $indexLatestAt])
+            ->where('list_no=09818189')
+            //->where('last_update_date > :last_update_date', [':last_update_date' => $indexLatestAt])
             ->limit($groupSize);
 
         $hasIndexed = false;
@@ -61,9 +62,9 @@ class ListhubIndexController extends Controller
                 }
 
                 //附加处理
-                if (strtotime($row['last_update_date']) > strtotime($indexLatestAt)) {
-                    $indexLatestAt = $row['last_update_date'];
-                }
+                //if (strtotime($row['last_update_date']) > strtotime($indexLatestAt)) {
+                //    $indexLatestAt = $row['last_update_date'];
+                //}
 
                 if (! $hasIndexed) $hasIndexed = true;
 
@@ -82,7 +83,7 @@ class ListhubIndexController extends Controller
         }, $this, $mlsdb);
 
         //执行完过后再执行状态
-        \yii::$app->db->createCommand()->update('site_setting', ['value' => json_encode($indexLatestAt)], "path='listhub.rets.index.latest_date'")->execute();
+        //\yii::$app->db->createCommand()->update('site_setting', ['value' => json_encode($indexLatestAt)], "path='listhub.rets.index.latest_date'")->execute();
     }
 
     protected function _processRow($xmlDom, $row)
