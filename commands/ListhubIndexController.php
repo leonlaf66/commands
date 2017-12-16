@@ -66,6 +66,11 @@ class ListhubIndexController extends Controller
                     ListhubCounter::_('error')->increase();
                 }
 
+                //附加处理
+                if (strtotime($row['last_update_date']) > strtotime($indexLatestAt)) {
+                    $indexLatestAt = $row['last_update_date'];
+                }
+
                 if (! $hasIndexed) $hasIndexed = true;
 
                 unset($row);
@@ -81,6 +86,9 @@ class ListhubIndexController extends Controller
             $transaction->commit();
 
         }, $this, $mlsdb);
+
+        //执行完过后再执行状态
+        \yii::$app->db->createCommand()->update('site_setting', ['value' => $indexLatestAt], "path='listhub.rets.index.latest_date'")->execute();
     }
 
     protected function _processRow($xmlDom, $row)
