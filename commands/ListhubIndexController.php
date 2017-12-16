@@ -21,7 +21,6 @@ class ListhubIndexController extends Controller
         $query = (new \yii\db\Query())
             ->select('list_no, state, xml, latitude, longitude,last_update_date')
             ->from('mls_rets_listhub')
-            ->where('list_no=09818189')
             //->where('last_update_date > :last_update_date', [':last_update_date' => $indexLatestAt])
             ->limit($groupSize);
 
@@ -38,14 +37,14 @@ class ListhubIndexController extends Controller
                 //未知state直接扔掉
                 if (!$row['state']) continue;
 
+                //解析数据实体
+                $xmlDom = \models\listhub\Rets::toModel($row['xml']);
+
                 // 未知city时直接扔掉
                 $cityName = $xmlDom->one('Address/City')->val();
                 if (empty($cityName)) {
                     continue;
                 }
-
-                //解析数据实体
-                $xmlDom = \models\listhub\Rets::toModel($row['xml']);
 
                 //处理索引行数据
                 if ($rowData = $that->_processRow($xmlDom, $row)) {
@@ -101,9 +100,11 @@ class ListhubIndexController extends Controller
         $id = $data['id'];
 
         if ((new Query())->from('listhub_index')->where(['id'=>$id])->exists()) {
+            return false;
+            /*
             return $db->createCommand()
                 ->update('listhub_index', $data, 'id=:id', [':id'=>$id])
-                ->execute();
+                ->execute();*/
         }
 
         return $db->createCommand()
