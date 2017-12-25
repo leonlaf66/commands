@@ -1,6 +1,7 @@
 <?php
 namespace app\commands;
 
+use function foo\func;
 use WS;
 use yii\console\Controller;
 use yii\db\Query;
@@ -19,7 +20,7 @@ class ListhubIndexController extends Controller
         $indexLatestAt = Configure::get('listhub.rets.index.latest_date');
 
         $query = (new \yii\db\Query())
-            ->select('list_no, state, xml, latitude, longitude,last_update_date')
+            ->select('list_no, state, xml, latitude, longitude, status,last_update_date')
             ->from('mls_rets_listhub')
             ->where(['in', 'state', ['NY', 'GA', 'CA', 'IL']])
             //->where('last_update_date > :last_update_date', [':last_update_date' => $indexLatestAt])
@@ -105,11 +106,9 @@ class ListhubIndexController extends Controller
         $id = $data['id'];
 
         if ((new Query())->from('listhub_index')->where(['id'=>$id])->exists()) {
-            return 1;
-            /*
             return $db->createCommand()
                 ->update('listhub_index', $data, 'id=:id', [':id'=>$id])
-                ->execute();*/
+                ->execute();
         }
 
         return $db->createCommand()
@@ -211,6 +210,18 @@ class ListHubConfig {
                 }
 
                 return $cityId;
+            },
+            'status' => function ($d, $row) {
+                return $row['status'];
+            },
+            'ant_sold_date' => function ($d, $row) {
+                if ($row['status'] === 'Sold') {
+                    return $row['last_update_date'];
+                }
+                return null;
+            },
+            'is_show' => function ($d, $row) {
+                return $row['status'] === 'Active';
             },
             'state' => function ($d, $row) {
                 return $row['state'];
