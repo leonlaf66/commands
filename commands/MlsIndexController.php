@@ -14,7 +14,7 @@ defined('APP_ROOT') || define('APP_ROOT', dirname(__FILE__).'/../');
 
 class MlsIndexController extends Controller
 {
-    public function actionExecute()
+    public function actionExecute($range = null)
     {
         $mlsdb = WS::$app->mlsdb;
         $groupSize = 1000;
@@ -23,9 +23,12 @@ class MlsIndexController extends Controller
 
         $query = (new \yii\db\Query())
             ->select('*')
-            ->from('mls_rets')
-            // ->where('update_date > :update_date', [':update_date' => $indexLatestAt])
-            ->limit($groupSize);
+            ->from('mls_rets');
+
+        if ($range !== 'all') {
+            $query->where('update_date > :update_date', [':update_date' => $indexLatestAt]);
+        }
+        $query->limit($groupSize);
 
         $hasIndexed = false;
         DbQuery::patch($query, $groupSize, function ($query, $totalCount, $that) use (& $indexLatestAt, & $hasIndexed) {
@@ -74,15 +77,21 @@ class MlsIndexController extends Controller
         }, $this, $mlsdb);
 
         //执行完过后再执行状态
-        \yii::$app->db->createCommand()->update('site_setting', ['value' => json_encode($indexLatestAt)], "path='mls.rets.index.latest_date'")->execute();
+        \yii::$app->db->createCommand()->update(
+            'site_setting',
+            [
+                'value' => json_encode($indexLatestAt)
+            ],
+            "path='mls.rets.index.latest_date'")
+            ->execute();
 
         //日志
         file_put_contents(__DIR__.'/../log.log', date('Y-m-d H:i:s').' rets.index'."\n", FILE_APPEND);
 
         //执行过后相关的命令
         if ($hasIndexed) {
-           // \WS::$app->shellMessage->send('summery/index');
-           // \WS::$app->shellMessage->send('sitemap/generate');
+           \WS::$app->shellMessage->send('summery/index');
+           \WS::$app->shellMessage->send('sitemap/generate');
         }
     }
 

@@ -13,7 +13,7 @@ defined('APP_ROOT') || define('APP_ROOT', dirname(__FILE__).'/../');
 
 class ListhubIndexController extends Controller
 {
-    public function actionExecute()
+    public function actionExecute($range = null)
     {
         $groupSize = 500;
 
@@ -22,12 +22,14 @@ class ListhubIndexController extends Controller
         $query = (new \yii\db\Query())
             ->select('list_no, state, xml, latitude, longitude, status,last_update_date')
             ->from('mls_rets_listhub')
-            ->where(['in', 'state', ['NY', 'GA', 'CA', 'IL']])
-            //->where('last_update_date > :last_update_date', [':last_update_date' => $indexLatestAt])
-            ->limit($groupSize);
+            ->where(['in', 'state', ['NY', 'GA', 'CA', 'IL']]);
+
+        if ($range !== 'all') {
+            $query->andWhere('last_update_date > :last_update_date', [':last_update_date' => $indexLatestAt]);
+        }
+        $query->limit($groupSize);
 
         $mlsdb = WS::$app->mlsdb;
-
         $processEcho = function ($totalCount) {
             //屏幕输出
             $index = ListhubCounter::_('index')->value;
@@ -73,9 +75,9 @@ class ListhubIndexController extends Controller
                 }
 
                 //附加处理
-                //if (strtotime($row['last_update_date']) > strtotime($indexLatestAt)) {
-                //    $indexLatestAt = $row['last_update_date'];
-                //}
+                if (strtotime($row['last_update_date']) > strtotime($indexLatestAt)) {
+                    $indexLatestAt = $row['last_update_date'];
+                }
 
                 unset($row);
                 unset($xmlDom);
@@ -88,7 +90,12 @@ class ListhubIndexController extends Controller
         }, $this, $mlsdb);
 
         //执行完过后再执行状态
-        //\yii::$app->db->createCommand()->update('site_setting', ['value' => json_encode($indexLatestAt)], "path='listhub.rets.index.latest_date'")->execute();
+        \yii::$app->db->createCommand()->update(
+            'site_setting', [
+                'value' => json_encode($indexLatestAt)
+            ],
+            "path='listhub.rets.index.latest_date'")
+            ->execute();
     }
 
     protected function _processRow($xmlDom, $row)
@@ -143,10 +150,10 @@ class ListHubConfig {
                     $address->PostalCode->val()
                 ]);
             },
-            'list_date' => function ($d) {
+            'list_date' => function ($d, $row) {
                 $listDate = $d->one('ListingDate')->val();
                 if (!$listDate || strlen($listDate) === 0) {
-                    $listDate = date('Y-m-d H:i:s');
+                    $listDate = $row['last_update_date'];
                 }
                 return $listDate;
             },

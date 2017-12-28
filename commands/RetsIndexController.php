@@ -62,7 +62,7 @@ class RetsIndexController extends Controller
         }, $this, $mlsdb);
     }
 
-    public function actionBuild()
+    public function actionBuild($range = null)
     {
         $mlsdb = WS::$app->mlsdb;
         $groupSize = 1000;
@@ -71,9 +71,12 @@ class RetsIndexController extends Controller
 
         $query = (new \yii\db\Query())
             ->select('*')
-            ->from('mls_rets')
-            ->where('update_date > :update_date', [':update_date' => $indexLatestAt])
-            ->limit($groupSize);
+            ->from('mls_rets');
+
+        if ($range !== 'all') {
+            $query->where('update_date > :update_date', [':update_date' => $indexLatestAt]);
+        }
+        $query->limit($groupSize);
 
         $hasIndexed = false;
         DbQuery::patch($query, $groupSize, function ($query, $totalCount, $that) use (& $indexLatestAt, & $hasIndexed) {
