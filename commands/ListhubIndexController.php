@@ -40,7 +40,8 @@ class ListhubIndexController extends Controller
             echo "indexed:{$index}/empty-city:{$emptyCity}/invalidPropType:{$invalidPropType}/error:{$error}/total:{$totalCount}                   \r";
         };
 
-        DbQuery::patch($query, $groupSize, function ($query, $totalCount, $that) use (& $indexLatestAt, $processEcho) {
+        $hasIndexed = false;
+        DbQuery::patch($query, $groupSize, function ($query, $totalCount, $that) use (& $indexLatestAt, $processEcho, & $hasIndexed) {
             $mlsdb = WS::$app->mlsdb;
             $transaction = \yii::$app->db->beginTransaction();
 
@@ -79,6 +80,8 @@ class ListhubIndexController extends Controller
                     $indexLatestAt = $row['last_update_date'];
                 }
 
+                if (! $hasIndexed) $hasIndexed = true;
+
                 unset($row);
                 unset($xmlDom);
 
@@ -96,6 +99,11 @@ class ListhubIndexController extends Controller
             ],
             "path='listhub.rets.index.latest_date'")
             ->execute();
+
+        //执行过后相关的命令
+        if ($hasIndexed) {
+            \WS::$app->shellMessage->send('listhub-summery/index');
+        }
     }
 
     protected function _processRow($xmlDom, $row)
@@ -217,6 +225,23 @@ class ListHubConfig {
                 }
 
                 return $cityId;
+            },
+            'parent_city_id' => function ($d, $row) { // 处理CA的子城市
+                if ($row['state'] !== 'CA') {
+                    return null;
+                }
+
+                $cityName = $d->one('Address/City')->val();
+                return (new \yii\db\Query())
+                    ->from('city')
+                    ->select('parent_id')
+                    ->where([
+                        'state' => $row['state'],
+                        'name' => $cityName
+                    ])
+                    ->orderBy(['type_rule' => SORT_ASC, 'id' => SORT_ASC])
+                    ->limit(1)
+                    ->scalar();
             },
             'status' => function ($d, $row) {
                 return $row['status'];
