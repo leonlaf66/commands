@@ -19,6 +19,12 @@ class ImportLaCityController extends Controller
         });
         $citis = array_unique($citis);
 
+        $lines = [];
+        foreach ($citis as $cityName) {
+            $lines[] = "'{$cityName}'";
+        }
+        echo implode(",", $lines);exit;
+
         $parentId = $this->getParentId();
         $startId = $this->getLastId() + 1;
 
@@ -47,7 +53,6 @@ class ImportLaCityController extends Controller
                     'state' => self::STATE,
                     'parent_id' => $parentId
                 ])->execute();
-            $cityId = \WS::$app->db->lastInsertID;
         }
 
         return $cityId;
