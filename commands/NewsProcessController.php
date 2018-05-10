@@ -22,7 +22,6 @@ class NewsProcessController extends Controller
         if (preg_match_all('/<img.*?src="(.*?)".*?>/is', $content, $matchs)) {
             foreach ($matchs[1] as $imageUrl) {
                 $newImageUrl = $this->convertToLocalImageUrl($imageUrl);
-                var_dump($newImageUrl);
                 $content = str_replace($imageUrl, $newImageUrl, $content);
             }
         }
@@ -49,13 +48,13 @@ class NewsProcessController extends Controller
     protected function convertToLocalImageUrl($remoteUrl)
     {
         $hashId = md5($remoteUrl);
-        $localFileDir = sprintf('%s/%s/%s',
+        $localFileDir = 'news/img/'.sprintf('%s/%s/%s',
             substr($hashId, 0, 1),
             substr($hashId, 1, 1),
             substr($hashId, 2, 2)
         );
 
-        $rootDir = \WS::$app->params['media']['root'].'/news/img';
+        $rootDir = \WS::$app->params['media']['root'];
         $fileDir = $rootDir.'/'.$localFileDir;
 
         if (! is_dir($fileDir)) {
@@ -68,7 +67,6 @@ class NewsProcessController extends Controller
         /*已经有本地缓存*/
         if (file_exists($localFile)) {
             return '//'.$localFileDir.'/'.substr($hashId, 4).'.jpg';
-            // return $localFile;
         }
 
         $blob = $this->fetchRemoteImage($remoteUrl);
