@@ -26,12 +26,12 @@ class SitemapController extends Controller
                     $path = ($row['prop_type'] === 'RN' ? 'lease' : 'purchase').'/'.$row['list_no'].'/';
 
                     if ($type === 'g') {
-                        $url = 'https://'.$areaId.$domain.'/'.$path;
-                        $zhUrl = 'https://'.$areaId.$domain.'/zh/'.$path;
+                        $url = 'http://'.$areaId.$domain.'/'.$path;
+                        $zhUrl = 'http://'.$areaId.$domain.'/zh/'.$path;
 
                         $sitemap->addItem(['en'=>$url, 'zh'=>$zhUrl], strtotime($row['index_at']), Sitemap::DAILY, 1);
                     } else {
-                        $url = 'https://'.$areaId.$domain.'/zh/'.$path;
+                        $url = 'http://'.$areaId.$domain.'/zh/'.$path;
 
                         $sitemap->addItem($url, strtotime($row['index_at']), Sitemap::DAILY, 1);
                     }
@@ -39,7 +39,7 @@ class SitemapController extends Controller
 
                 $sitemap->write();
 
-                $sitemapIndex->addSitemap('https://'.$areaId.$domain.'/'.$xmlFile);
+                $sitemapIndex->addSitemap('http://'.$areaId.$domain.'/'.$xmlFile);
             }, ($type === 'g' ? 20000 : 40000));
         }
 
@@ -50,18 +50,18 @@ class SitemapController extends Controller
             ->queryColumn('id');
         foreach ($xqids as $xqid) {
             if ($type === 'g') {
-                $url = 'https://ma'.$domain.'/school-district/'.$xqid.'/';
-                $zhUrl = 'https://ma'.$domain.'/zh/school-district/'.$xqid.'/';
+                $url = 'http://ma'.$domain.'/school-district/'.$xqid.'/';
+                $zhUrl = 'http://ma'.$domain.'/zh/school-district/'.$xqid.'/';
                 $sitemap->addItem(['en'=>$url, 'zh'=>$zhUrl], null, Sitemap::MONTHLY, 0.8);
             } else {
-                $url = 'https://ma'.$domain.'/school-district/zh/'.$xqid.'/';
+                $url = 'http://ma'.$domain.'/school-district/zh/'.$xqid.'/';
                 $sitemap->addItem($url, null, Sitemap::MONTHLY, 0.8);
             }
         }
 
         if (count($xqids) > 0) {
             $sitemap->write();
-            $sitemapIndex->addSitemap('https://ma'.$domain.'/'.$xmlFile);
+            $sitemapIndex->addSitemap('http://ma'.$domain.'/'.$xmlFile);
         }
 
         // 黄页
@@ -72,18 +72,18 @@ class SitemapController extends Controller
             $sitemap = new Sitemap(TRIGET_SITE_ROOT.'/'.$xmlFile, $type === 'g');
             foreach ($rows as $row) {
                 if ($type === 'g') {
-                    $url = 'https://'.$areaId.$domain.'/pro-service/'.$row['id'].'/';
-                    $zhUrl = 'https://'.$areaId.$domain.'/zh/pro-service/'.$row['id'].'/';
+                    $url = 'http://'.$areaId.$domain.'/pro-service/'.$row['id'].'/';
+                    $zhUrl = 'http://'.$areaId.$domain.'/zh/pro-service/'.$row['id'].'/';
                     $sitemap->addItem(['en'=>$url, 'zh'=>$zhUrl], null, Sitemap::MONTHLY, 0.8);
                 } else {
-                    $url = 'https://'.$areaId.$domain.'/zh/pro-service/'.$row['id'].'/';
+                    $url = 'http://'.$areaId.$domain.'/zh/pro-service/'.$row['id'].'/';
                     $sitemap->addItem($url, null, Sitemap::MONTHLY, 0.8);
                 }
             }
 
             if (count($rows) > 0) {
                 $sitemap->write();
-                $sitemapIndex->addSitemap('https://'.$areaId.$domain.'/'.$xmlFile);
+                $sitemapIndex->addSitemap('http://'.$areaId.$domain.'/'.$xmlFile);
             }
         }
 
@@ -95,13 +95,13 @@ class SitemapController extends Controller
             $sitemap = new Sitemap(TRIGET_SITE_ROOT.'/'.$xmlFile);
 
             foreach ($rows as $row) {
-                $url = 'https://'.$areaId.$domain.'/zh/news/'.$row['id'].'/';
+                $url = 'http://'.$areaId.$domain.'/zh/news/'.$row['id'].'/';
                 $sitemap->addItem($url, strtotime($row['updated_at']), Sitemap::DAILY, 0.9);
             }
 
             if (count($rows) > 0) {
                 $sitemap->write();
-                $sitemapIndex->addSitemap('https://'.$areaId.$domain.'/'.$xmlFile);
+                $sitemapIndex->addSitemap('http://'.$areaId.$domain.'/'.$xmlFile);
             }
         }
 
