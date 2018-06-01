@@ -32,7 +32,7 @@ class SitemapController extends Controller
                 $sitemap->write();
 
                 $sitemapIndex->addSitemap('http://'.$areaId.$domain.'/'.$xmlFile);
-            }, 40000);
+            }, 4000);
         }
 
         /*学区(仅ma)*/
