@@ -18,8 +18,10 @@ class SitemapController extends Controller
 
         // 房源
         foreach($areaIds as $areaId) {
-            $houses = \common\estate\Sitemap::map($areaId, function ($rows, $idx) use ($domain, $sitemapIndex, $areaId) {
-                $xmlFile = 'sitemap_houses_'.$areaId.($idx > 0 ? '_'.($idx + 1) : '').'.xml';
+            $houses = \common\estate\Sitemap::map($areaId, function ($rows, $opts) use ($domain, $sitemapIndex, $areaId) {
+                $idx = $opts['groupIdx'];
+
+                $xmlFile = 'sitemap_houses_'.$areaId.($idx > 1 ? '_'.$idx : '').'.xml';
                 $sitemap = new Sitemap(TRIGET_SITE_ROOT.'/'.$xmlFile);
 
                 foreach ($rows as $row) {
