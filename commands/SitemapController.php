@@ -32,7 +32,7 @@ class SitemapController extends Controller
             }, 2000);
 
             $sitemap->write();
-            $sitemapUrls = $sitemap->getSitemapUrls('http://'.$areaId.$domain.'/');
+            $sitemapUrls = $sitemap->getSitemapUrls('http://'.$areaId.$domain.'/sitemaps/');
             foreach ($sitemapUrls as $url) {
                 $sitemapIndex->addSitemap($url);
             }
