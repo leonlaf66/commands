@@ -46,7 +46,7 @@ class SitemapController extends Controller
             ->queryColumn('id');
 
         foreach ($xqids as $xqid) {
-            $url = 'http://ma'.$domain.'/school-district/zh/'.$xqid.'/';
+            $url = 'http://ma'.$domain.'/zh/school-district/'.$xqid.'/';
             $sitemap->addItem($url, null, Sitemap::MONTHLY, 1);
         }
 
