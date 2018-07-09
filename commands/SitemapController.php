@@ -14,35 +14,40 @@ class SitemapController extends Controller
     {
         $domain = \WS::$app->params['domain'];
         $sitemapIndex = new SitemapIndex(TRIGET_SITE_ROOT . '/sitemap_index.xml');
+
         $areaIds = ['ma', 'ny', 'ca', 'ga', 'il'];
 
         // 房源
         foreach($areaIds as $areaId) {
-            $houses = \common\estate\Sitemap::map($areaId, function ($rows, $idx) use ($domain, $sitemapIndex, $areaId) {
-                $xmlFile = 'sitemap_houses_'.$areaId.($idx > 0 ? '_'.($idx + 1) : '').'.xml';
-                $sitemap = new Sitemap(TRIGET_SITE_ROOT.'/'.$xmlFile);
-
+            $sitemap = new Sitemap(TRIGET_SITE_ROOT."/sitemaps/es-{$areaId}.xml.gz");
+            $sitemap->setMaxUrls(3000);
+            $sitemap->setUseGzip(true);
+            $houses = \common\estate\Sitemap::map($areaId, function ($rows, $idx) use ($domain, $sitemap, $areaId) {
                 foreach ($rows as $row) {
                     $path = ($row['prop_type'] === 'RN' ? 'lease' : 'purchase').'/'.$row['list_no'].'/';
 
                     $url = 'http://'.$areaId.$domain.'/zh/'.$path;
-                    $sitemap->addItem($url, strtotime($row['index_at']), Sitemap::DAILY, 1);
+                    $sitemap->addItem($url, strtotime($row['index_at']), Sitemap::MONTHLY, 1);
                 }
+            }, 2000);
 
-                $sitemap->write();
-
-                $sitemapIndex->addSitemap('http://'.$areaId.$domain.'/'.$xmlFile);
-            }, 4000);
+            $sitemap->write();
+            $sitemapUrls = $sitemap->getSitemapUrls('http://'.$areaId.$domain.'/');
+            foreach ($sitemapUrls as $url) {
+                $sitemapIndex->addSitemap($url);
+            }
         }
 
-        /*学区(仅ma)*/
-        $xmlFile = 'sitemap_yp_ma_xq.xml';
+        // 学区(仅ma)
+        $xmlFile = 'sitemaps/sd-ma.xml';
         $sitemap = new Sitemap(TRIGET_SITE_ROOT.'/'.$xmlFile);
+
         $xqids = \WS::$app->db->createCommand('select id from schooldistrict')
             ->queryColumn('id');
+
         foreach ($xqids as $xqid) {
             $url = 'http://ma'.$domain.'/school-district/zh/'.$xqid.'/';
-            $sitemap->addItem($url, null, Sitemap::MONTHLY, 0.8);
+            $sitemap->addItem($url, null, Sitemap::MONTHLY, 1);
         }
 
         if (count($xqids) > 0) {
@@ -52,10 +57,10 @@ class SitemapController extends Controller
 
         // 黄页
         foreach($areaIds as $areaId) {
-            $xmlFile = 'sitemap_yp_'.$areaId.'.xml';
+            $xmlFile = "sitemaps/ps-{$areaId}.xml";
+            $sitemap = new Sitemap(TRIGET_SITE_ROOT.'/'.$xmlFile);
 
             $rows = \common\yellowpage\Sitemap::map($areaId);
-            $sitemap = new Sitemap(TRIGET_SITE_ROOT.'/'.$xmlFile);
             foreach ($rows as $row) {
                 $url = 'http://'.$areaId.$domain.'/zh/pro-service/'.$row['id'].'/';
                 $sitemap->addItem($url, null, Sitemap::MONTHLY, 0.8);
@@ -69,14 +74,13 @@ class SitemapController extends Controller
 
         // 新闻
         foreach($areaIds as $areaId) {
-            $xmlFile = 'sitemap_news_'.$areaId.'.xml';
-
-            $rows = \common\news\Sitemap::map($areaId);
+            $xmlFile = "sitemaps/news-{$areaId}.xml";
             $sitemap = new Sitemap(TRIGET_SITE_ROOT.'/'.$xmlFile);
 
+            $rows = \common\news\Sitemap::map($areaId);
             foreach ($rows as $row) {
                 $url = 'http://'.$areaId.$domain.'/zh/news/'.$row['id'].'/';
-                $sitemap->addItem($url, strtotime($row['updated_at']), Sitemap::DAILY, 0.9);
+                $sitemap->addItem($url, strtotime($row['updated_at']), Sitemap::MONTHLY, 0.9);
             }
 
             if (count($rows) > 0) {
@@ -85,6 +89,7 @@ class SitemapController extends Controller
             }
         }
 
+        // ending
         $sitemapIndex->write();
 
         /*log*/
