@@ -19,7 +19,7 @@ class SitemapController extends Controller
 
         // 房源
         foreach($areaIds as $areaId) {
-            $sitemap = new Sitemap(TRIGET_SITE_ROOT."/sitemaps/es-{$areaId}.xml.gz");
+            $sitemap = new Sitemap(TRIGET_SITE_ROOT."/es-{$areaId}.xml.gz");
             $sitemap->setMaxUrls(3000);
             $sitemap->setUseGzip(true);
             $houses = \common\estate\Sitemap::map($areaId, function ($rows, $idx) use ($domain, $sitemap, $areaId) {
@@ -32,14 +32,14 @@ class SitemapController extends Controller
             }, 2000);
 
             $sitemap->write();
-            $sitemapUrls = $sitemap->getSitemapUrls('http://'.$areaId.$domain.'/sitemaps/');
+            $sitemapUrls = $sitemap->getSitemapUrls('http://'.$areaId.$domain.'/');
             foreach ($sitemapUrls as $url) {
                 $sitemapIndex->addSitemap($url);
             }
         }
 
         // 学区(仅ma)
-        $xmlFile = 'sitemaps/sd-ma.xml';
+        $xmlFile = 'sd-ma.xml';
         $sitemap = new Sitemap(TRIGET_SITE_ROOT.'/'.$xmlFile);
 
         $xqids = \WS::$app->db->createCommand('select id from schooldistrict')
@@ -57,7 +57,7 @@ class SitemapController extends Controller
 
         // 黄页
         foreach($areaIds as $areaId) {
-            $xmlFile = "sitemaps/ps-{$areaId}.xml";
+            $xmlFile = "ps-{$areaId}.xml";
             $sitemap = new Sitemap(TRIGET_SITE_ROOT.'/'.$xmlFile);
 
             $rows = \common\yellowpage\Sitemap::map($areaId);
@@ -74,7 +74,7 @@ class SitemapController extends Controller
 
         // 新闻
         foreach($areaIds as $areaId) {
-            $xmlFile = "sitemaps/news-{$areaId}.xml";
+            $xmlFile = "news-{$areaId}.xml";
             $sitemap = new Sitemap(TRIGET_SITE_ROOT.'/'.$xmlFile);
 
             $rows = \common\news\Sitemap::map($areaId);
