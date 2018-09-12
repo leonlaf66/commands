@@ -93,7 +93,7 @@ class NewsletterController extends Controller
             ->select('list_no')
             ->where(['area_id' => $areaId])
             ->andWhere(['is_online_abled' => true])
-            ->andWhere(['>', 'list_date', $task->last_task_at])
+            ->andWhere(['>', 'list_date', $lastTaskAt])
             ->limit(100);
 
         foreach ($data as $filterId => $filterValue) {
