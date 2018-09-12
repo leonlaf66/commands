@@ -86,6 +86,8 @@ class NewsletterController extends Controller
             }
         ];
 
+        $lastTaskAt = $task->last_task_at;
+        if (!$lastTaskAt) $lastTaskAt = date('Y-m-d', time()).' 00:00:00';
         $query = (new \yii\db\Query())
             ->from('house_index_v2')
             ->select('list_no')
