@@ -10,6 +10,11 @@ return \yii\helpers\ArrayHelper::merge(get_fdn_etc(), [
     'id' => 'usleju-console',
     'basePath' => dirname(__DIR__),
     'controllerNamespace' => 'app\commands',
+    'components' => [
+      'graphql' => [
+        'class' => 'app\commands\lib\GraphQlClient'
+      ]
+    ],
     'params' => [
       'frontendBaseUrl' => 'http://ma.usleju.local'
     ]

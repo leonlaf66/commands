@@ -1,0 +1,11 @@
+query find_newsletter_houses($ids: [ID!]){
+  result: houses(ids: $ids) {
+    id,
+    nm
+    photo(w:300, h:300)
+    price
+    square_feet
+    prop
+    area_id
+  }
+}
